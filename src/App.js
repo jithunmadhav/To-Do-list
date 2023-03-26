@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import {useState} from 'react'
+ 
 
 function App() {
   const [todos, setTodos] = useState([])
-const [todo, setTodo] = useState('')
+  const [todo, setTodo] = useState('')
+
+  const handleDelete = (id) => {
+    console.log(id
+      );
+    if(window.confirm("Are you sure to continue")){
+      const newTodo = todos.filter((item, index) => item.id !== id);
+      console.log(newTodo);
+      localStorage.setItem('todos', JSON.stringify(newTodo))
+      setTodos(newTodo);
+    }
+  
+};
+ 
+  
+useEffect(() => {
+  if (localStorage.getItem("todos")) {
+    //key from handlesum
+    setTodos(JSON.parse(localStorage.getItem("todos")));
+  }
+}, [])
   return (
     <div className="app">
       <div className="mainHeading">
-        <h1>ToDo List</h1>
+        <h1 style={{ marginTop: "12px"}}>Todo App</h1>
       </div>
       <div className="subHeading">
         <br />
@@ -16,7 +37,16 @@ const [todo, setTodo] = useState('')
       </div>
       <div className="input">
         <input type="text" value={todo} onChange={(e)=>setTodo(e.target.value)} placeholder="Add items" />
-        <i onClick={()=>setTodos([...todos,{id:Date.now(),text:todo,status:false}])} className="fas fa-plus"></i>
+        <i onClick={()=>{
+          if(todo!=="" && todo.trim()!==""){
+            setTodos([...todos,{id:Date.now(),text:todo,status:false}])
+            localStorage.setItem('todos',JSON.stringify([...todos,{id:Date.now(),text:todo,status:false}]))
+
+          setTodo("")
+          }
+          
+          }} className="fas fa-plus"></i>
+          
       </div>
       <div className="todos">
         {todos.map((value)=>{
@@ -31,21 +61,14 @@ const [todo, setTodo] = useState('')
             <p>{value.text}</p>
           </div>
           <div className="right">
-            <i onClick={()=>setTodos(
-              todos.filter(val=>{
-                if(val.id===value.id){
-                val='';
-                }
-                return val
-              })
-            )} className="fas fa-times"></i>
+            <i onClick={()=> handleDelete(value.id)} className="fas fa-times"></i>
           </div>
         </div>)
         })}
       
       </div>
       <div className='completedTodo'>
-      <h1 style={{ color:'red'}}>Task Completed</h1>
+      <h1 style={{ color:'black'}}>Task Completed</h1>
       {todos.map((value)=>{
         if(value.status){
         
@@ -56,7 +79,7 @@ const [todo, setTodo] = useState('')
       })}
       </div>
       <div className='pendingTodo'>
-      <h1 style={{ color:'red'}}>Task pending</h1>
+      <h1 style={{ color:'black'}}>Task pending</h1>
       {todos.map((value)=>{
         if(value.status){
           return null
